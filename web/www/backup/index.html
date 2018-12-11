@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="zh-cn">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=Edge">
+    <meta name="author" content="Reddy.Huang"/>
+    <link rel="stylesheet" href="/public/css/reset.css">
+    <link rel="stylesheet" href="/public/css/register.css">
+    <title>Title</title>
+    <style>
+        h2 {
+            display: none;
+        }
+        #info{
+          display: none;
+        }
+    </style>
+</head>
+<body>
+<h2 id="userInfo">欢迎回来,<span id="user"></span></h2>
+<div class="form-wrapper">
+    <div class="banner"></div>
+    <form id="form">
+        <div class="item-wrapper"><label for="username">登陆名</label><input type="text" name="user" id="username" value=""></div>
+        <div class="item-wrapper"><label for="password">密码</label><input type="password" name="password" id="password" value=""></div>
+        <input type="button" value="登陆" id="submit">
+        <input type="button" value="注册" id="register">
+    </form>
+    <p id="info" >请输入信息</p>
+</div>
+<script src="./ajax.js"></script>
+<script>
+
+    const register = document.getElementById('register');
+    const submit = document.getElementById('submit');
+    const username = document.getElementById('username');
+    const password = document.getElementById('password');
+    const info = document.getElementById('info');
+    //注册
+    register.onclick=function(){
+        fetch('/api/user/register',{
+            method: "POST", // *GET, POST, PUT, DELETE, etc.
+            //mode: "cors", // no-cors, cors, *same-origin
+            //cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
+            //credentials: "same-origin", // include, *same-origin, omit
+            // headers: {
+            //     "Content-Type": "application/json; charset=utf-8",
+            //     // "Content-Type": "application/x-www-form-urlencoded",
+            // },
+            // redirect: "follow", // manual, *follow, error
+            // referrer: "no-referrer", // no-referrer, *client
+            headers: {  
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"  
+            },  
+            body: `username=${username.value}&password=${password.value}` 
+            // body: JSON.stringify({"username":"1","password":"1"}), // body data type must match "Content-Type" header
+
+        }).then(function(res){
+            console.log(res);
+            
+        })
+    }
+
+    submit.onclick=function(){
+        let xhr=new XMLHttpRequest();
+        
+        xhr.open('post',"/api/user/login");
+        xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        xhr.onload=function(){
+            console.log(xhr.responseText);
+        }
+        xhr.send(`username:${username.value}&password:${password.value}`);
+    }
+   
+
+
+
+
+
+</script>
+</body>
+</html>
