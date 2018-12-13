@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+    .masked{
+        overflow: hidden;
+        width: 200px;
+        height: 200px;
+        position: relative;
+    }
+    .masked img{
+        width: 200px;
+        height: 200px;
+        position: absolute;
+        left: 0;
+        top: 0;
+    }
+    .masked .mask{
+        opacity: .5;
+        transform-origin: left bottom;
+        transform: rotate(90deg);
+        transition:all .5s ease;
+        position: absolute;
+        left: 0;
+        top: 0;
+        background: #000;
+        width: 200px;
+        height: 200px;
+    }
+    .masked:hover .mask{
+        transform: rotate(0deg);
+    }
+
+    .scale{
+        overflow: hidden;
+        border: #000  1px solid;
+    }
+    .scale:hover img{
+        transform: scale(1.2);
+        transition: all 1 ease;
+        opacity: .5;
+    }
+    .scale img{
+        transform: scale(1);
+    }
+    .cl{
+        overflow: hidden;
+        position: relative;
+        width: 200px;
+        height: 200px;
+    }
+    .cl .mask{
+        position: absolute;
+        top: 200px;
+        left: 0;
+        background: rgb(0,0,0,.5);
+        width: 200px;
+        height: 200px;
+        
+    }
+    .cl:hover .mask{
+        top: 0;
+        transition: all 1s ease;
+    }
+    
+    .progress{
+        width: 200px;
+        height: 10px;
+
+    }
+    .progress div{
+        background: red;
+        width: 0px;
+        height: 10px;
+    }
+    .progress:hover div{
+        width: 200px;
+        transition: all 1s ease;
+        background: yellow;
+    }
+
+    .fz img{
+        /* transform: rotateY(0deg); */
+        transform: perspective(0px)  rotateY(0deg);
+    }
+    .fz:hover img{
+        /* transform: rotateY(180deg); */
+        transform: perspective(1000px) rotateY(180deg);
+
+    }
+
+
+    </style>
+</head>
+<body>
+    遮罩
+    <div class='masked'><img src="../images/page1-7.png" alt="">
+        <div class="mask"></div>
+    </div>
+    缩放
+    <div class='scale'><img src="../images/page1-8.png" alt=""></div>
+    窗帘
+    <div class='cl'>
+        <img src="../images/page1-3.png" alt="">
+        <div class="mask"></div>
+    </div>
+    进度条
+    <div class='progress'>
+        <div></div>
+    </div>
+
+    rotatey
+    <div class='fz'><img src="../images/page1-4.png" alt=""></div>
+    
+</body>
+</html>

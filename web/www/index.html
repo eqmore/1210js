@@ -37,6 +37,269 @@
     </div>
 </div>
 <script>
+    let pagecount;//当前数据有几页
+    let pagenum=10;//翻页功能显示几个页码
+    let begin;//页码开始
+    let end;//页码结束
+    let cur=1;//当前页
+    let hs=window.location.hash;
+
+    if(hs){
+        cur=hs.split('=')[1];
+        renderData(cur);
+        getPageCount();
+        renderPage();//有begin,end
+    }else{
+        window.location.hash='p=1';
+        renderAll();
+    }
+
+    //留言
+    submit.onclick=function(){
+        if(!text.value.trim()) return;
+        begin=undefined;
+        end=undefined;
+        fetch(`/api/weibo?content=${text.value}&act=add`,{
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            headers: {  
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"  
+            },  
+            // body: `content=${text.value}&act=add` 
+            // Failed to execute 'fetch' on 'Window': Request with GET/HEAD method cannot have body.
+        }).then(function(res){
+            return res.json();
+            
+        }).then(function(data){
+            // console.log(data);
+            if(data.code===0){
+                renderAll();
+            }else{
+                console.log(data.msg);
+            }
+        });
+        text.value='';
+    }
+    function renderData(page=1){
+        fetch(`/api/weibo?page=${page}&act=get`,{
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            headers: {  
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"  
+            },  
+            // body: `page=1&act=get` 
+        }).then(function(res){
+            return res.json();
+        }).then(function(res){
+            if(res.code===-1) console.log(res.msg);
+            else{
+                let html='';
+                res.forEach(e=>{
+                    html+=renderText(e);
+                })
+                div1.innerHTML=html;
+                addMethod();//添加点赞等事件
+            }
+            
+            
+        })
+    }
+
+    function renderAll(){
+        renderData();
+        getPageCount();
+
+    }
+
+
+    function renderText(data){
+        return `<div class="reply" >
+                <p class="replyContent">${data.content}</p>
+                <p class="operation">
+                    <span class="replyTime">${Date(data.time).toLocaleString()}</span>
+                    <span class="handle">
+                        <a href="javascript:;" class="top" data-id=${data.id}>${data.like}</a>
+                        <a href="javascript:;" class="down_icon" data-id=${data.id}>${data.dislike}</a>
+                        <a href="javascript:;" class="cut" data-id=${data.id}>删除</a>
+                    </span>
+                </p>
+            </div>`;
+
+    }
+    function addMethod(){
+       let handle1=document.getElementsByClassName('handle');
+       if(!handle1.length) return;
+       Array.from(handle1).forEach(han=>{
+            let handle=han.getElementsByTagName('a');
+            let li=handle[0];
+            let dis=handle[1];
+            let del=handle[2];
+            li.onclick=like;
+            dis.onclick=disLike;
+            del.onclick=deletely;
+       })
+       
+
+    }
+
+    //点赞
+    function like(){
+        fetch(`/api/weibo?id=${this.dataset.id}&act=like`,{
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            headers: {  
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"  
+            },  
+            // body: `id=${this.parentNode.parentNode.dataset.id}&act=like` 
+        }).then(function(res){
+            return res.json();
+        }).then(function(res){
+            console.log(res);
+            if(res.code===0){
+                renderData(cur);
+                renderPage();//有begin,end
+            }else{
+               console.log(res.msg);
+            }
+            
+        })
+    }
+    //踩
+    function disLike(){
+        console.log('dislike');
+        fetch(`/api/weibo?id=${this.dataset.id}&act=dislike`,{
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            headers: {  
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"  
+            },  
+            // body: `id=${this.dataset.id}&act=dislike` 
+        }).then(function(res){
+            return res.json();
+        }).then(function(res){
+            if(res.code===0){
+                renderData(cur);
+                renderPage();//有begin,end
+            }else{
+                console.log(res.msg);
+            }
+            
+        })
+    }
+    //删除
+    function deletely(){
+        fetch(`/api/weibo?id=${this.dataset.id}&act=del`,{
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            headers: {  
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"  
+            },  
+            // body: `id=${this.dataset.id}&act=del` 
+        }).then(function(res){
+            return res.json();
+        }).then(function(res){
+            console.log(res);
+            if(res.code===0){
+                begin=undefined;
+                end=undefined;
+                renderAll();
+                /* renderData(cur);删了不能停留在本页
+                renderPage();//有begin,end */
+            }else{
+                console.log(res.msg);
+            }
+            
+        })
+    }
+
+    //获取页码 当前数据几页
+    function getPageCount(){
+        fetch(`/api/weibo?act=get_page_count`,{
+            method: "GET", // *GET, POST, PUT, DELETE, etc.
+            headers: {  
+            "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"  
+            },  
+            // body: `act=get_page_count` 
+        }).then(function(res){
+            return res.json();
+        }).then(function(res){
+            console.log(res);
+            if(res.code===0){
+                pagecount=res.count;
+                renderPage();//没有点击过,默认的，点击过呢
+            }else{
+                console.log(res.msg);
+            }
+            
+        })
+    }
+
+    function renderPage(){//共有几页数据，显示几个页码
+        if(!begin) begin=1;
+        if(!end) end=Math.min(pagecount,pagenum);
+        let html='';
+        let num=1;
+        for(let i=begin;i<=end;i++){
+            if(i==cur){
+                html+=`<a href="#p=${i}" class="active" data-id=${i} data-index=${num} data-begin=${begin} data-end=${end}>${i}</a>`;
+            }else{
+                html+=`<a href="#p=${i}" data-id=${i} data-index=${num} data-begin=${begin} data-end=${end}>${i}</a>`;
+            }
+            num++;
+        }
+        page.innerHTML=html;
+        bindChangePage();
+    }
+
+    function bindChangePage(){
+        
+        let as=page.getElementsByTagName('a');
+        Array.from(as).forEach(a=>{
+            a.onclick=function(){
+                pageClick.call(this,as);
+            }
+        })
+        
+    }
+
+    function pageClick(as){
+        begin=parseInt(this.dataset.begin);
+        end=parseInt(this.dataset.end);
+        cur=parseInt(this.dataset.id);
+        let temp=(pagenum-2)/2;//除去中间两个不动，需要移动几个
+        let index=parseInt(this.dataset.index);
+        // console.log(parseInt(cur),window.location.hash);//改了不管用，a href 会改
+        // console.log(temp,cur,index,pagecount,pagenum);//2 5 5 8 6
+        
+        if(index<=temp){//左边两个//4 7 6 14 10
+            if(cur-temp>1){
+            begin=cur-temp;
+            end=Math.min(begin+pagenum-1,pagecount);
+            }else{
+                begin=1;
+                end=Math.min(begin+pagenum-1,pagecount);
+            }
+        }
+        
+        if(index>temp+2){//当前页码在第几位>两边几个+中间两个4 7 6 14 10
+            if(pagecount>=cur+temp){
+                end=cur+temp;
+                begin=end-pagenum+1;
+            }else{
+                end=pagecount;
+                begin=end-pagenum+1;
+            }
+        }
+        
+        renderData(cur);
+        renderPage();//有begin,end
+
+    }
+
+
+    text.onkeyup=function(ev){
+        if(ev.keyCode==13){
+            console.log('enter');
+            submit.onclick();
+        }
+    }
+
+
     
 </script>
 </body>

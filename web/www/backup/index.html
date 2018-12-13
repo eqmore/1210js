@@ -40,23 +40,21 @@
     register.onclick=function(){
         fetch('/api/user/register',{
             method: "POST", // *GET, POST, PUT, DELETE, etc.
-            //mode: "cors", // no-cors, cors, *same-origin
-            //cache: "no-cache", // *default, no-cache, reload, force-cache, only-if-cached
-            //credentials: "same-origin", // include, *same-origin, omit
-            // headers: {
-            //     "Content-Type": "application/json; charset=utf-8",
-            //     // "Content-Type": "application/x-www-form-urlencoded",
-            // },
-            // redirect: "follow", // manual, *follow, error
-            // referrer: "no-referrer", // no-referrer, *client
             headers: {  
             "Content-type": "application/x-www-form-urlencoded; charset=UTF-8"  
             },  
             body: `username=${username.value}&password=${password.value}` 
-            // body: JSON.stringify({"username":"1","password":"1"}), // body data type must match "Content-Type" header
-
         }).then(function(res){
-            console.log(res);
+            return  res.json();
+            
+        }).then(function (data){
+            console.log(data.code);
+            info.style.display='block';
+            if(data.code===0){
+                info.innerHTML=`welcome ${username.value}`;
+            }else{
+                info.innerHTML=data.msg;
+            }
             
         })
     }
@@ -67,7 +65,13 @@
         xhr.open('post',"/api/user/login");
         xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
         xhr.onload=function(){
-            console.log(xhr.responseText);
+            let data=JSON.parse(xhr.responseText);
+            if(data.code===0){
+                info.innerHTML=data.msg;
+                window.location.href='/';
+            }else{
+                info.innerHTML=data.msg;
+            }
         }
         xhr.send(`username:${username.value}&password:${password.value}`);
     }
