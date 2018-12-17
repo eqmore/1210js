@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='ang'>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    <div ng-controller='angcontrol'>
+        {{name}}
+    </div>
+    <script src="./bower_components/angular/angular.js"></script>
+    <script>
+    //当引入angular.js后再window下挂angular属性
+    //定义模块，模块的名称和依赖的模块
+
+    angular.module('ang',[]);
+    //模块 通过模块的controller定义一个控制器，名字，$scope是一个空{}
+    //依赖注入 我们定义i控制器的时候只需要在参数列表声明$scope
+    //声明后可以在函数中使用，它由容器也就是angular容器帮我们实例化
+    angular.module('ang').controller('angcontrol',function($scope){
+        $scope.name=1;
+    })
+    </script>
+</body>
+</html>

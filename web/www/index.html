@@ -140,8 +140,13 @@
 
     }
 
+    
+
+
     //点赞
     function like(){
+        let id=this.dataset.id;
+        if(getkeyinCookie('like',id)) return;
         fetch(`/api/weibo?id=${this.dataset.id}&act=like`,{
             method: "GET", // *GET, POST, PUT, DELETE, etc.
             headers: {  
@@ -154,6 +159,8 @@
             console.log(res);
             if(res.code===0){
                 renderData(cur);
+                //save in localstorage
+                setCookie('like',id);
                 renderPage();//有begin,end
             }else{
                console.log(res.msg);
@@ -163,7 +170,8 @@
     }
     //踩
     function disLike(){
-        console.log('dislike');
+        let id=this.dataset.id;
+        if(getkeyinCookie('dislike',id)) return;
         fetch(`/api/weibo?id=${this.dataset.id}&act=dislike`,{
             method: "GET", // *GET, POST, PUT, DELETE, etc.
             headers: {  
@@ -175,6 +183,10 @@
         }).then(function(res){
             if(res.code===0){
                 renderData(cur);
+                //cookie
+                
+                setCookie('dislike',id);
+                
                 renderPage();//有begin,end
             }else{
                 console.log(res.msg);
@@ -298,6 +310,52 @@
             submit.onclick();
         }
     }
+
+ 
+
+    
+    
+    function getCookie(key){
+        let ck=document.cookie.split('; ');
+        let res='';
+        ck.forEach(c=>{
+            let k=c.split('=');
+            if(k[0]==key){
+                res = k[1];
+            }
+        })
+        return res;
+    }
+    //判断是否点过 记录id  like
+    function getkeyinCookie(key,id){
+        let res=false;
+        let val=getCookie(key);
+        console.log(val,id);
+        if(val.indexOf(id)!=-1){
+            res=true;
+        }
+        return res;
+    }
+
+
+
+    function setCookie(key,val){//
+        let ck=getCookie(key);
+        var Days = 1;
+        var exp = new Date();
+        exp.setTime(exp.getTime() + Days*24*60*60*1000);
+        if(ck){
+            document.cookie=key+'=['+val+','+ck.substring(1)+' ;expires='+ exp.toGMTString();//不会覆盖其他cookie
+        }
+        else{
+            
+            console.log(key+'=['+val+']',exp);
+            document.cookie = key+'=['+escape(val)+'] ;expires='+ exp.toGMTString() ;
+        }
+        
+       
+    }
+
 
 
     

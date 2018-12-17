@@ -5,15 +5,88 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script src="https://sp0.baidu.com/=xyz&cb=fn"></script>
+
 </head>
 <body>
     <script>
-    function fn(data){
+    /* function fn(data){
         console.log(data);
-    }
+    } */
+
+    let p=new Promise(function(resolve,reject){
+        setTimeout(() => {
+            if(Math.random()>0.5){
+                console.log('reject');
+                reject(2);
+            }else{
+                console.log('resolve');
+                resolve(1);
+            }
+        });
+    }).catch(function(err){
+        console.log(err);
+    })
+
+
+    let p1=new Promise(function(resolve,reject){
+        resolve(1);
+    });
+    let p2=new Promise(function(resolve,reject){
+        resolve(2);
+    });
+    p2.then(function(d){//先执行
+        console.log(2);
+    })
+    p1.then(function(d){//后执行
+        console.log(1);
+    })
+
+    async function getTitle(url) {
+        let response = await fetch(url);
+        let html = await response.text();
+        return html.match(/<title>([\s\S]+)<\/title>/i)[1];
+        }
+        getTitle('https://tc39.github.io/ecma262/').then(console.log)//？？
+
    /*  https://www.chartjs.org/
     https://juejin.im/post/5c0f6fe16fb9a049e12a0d6a */
+
+    function* gen(x){
+        var y=yield x+2;
+        var z=yield x+y;
+        return z;
+    }
+    let yy=gen(5);
+    console.log(yy.next(6));//忽略第一次调用next参数
+    console.log(yy.next());
+    console.log(yy.next());
+
+
+    function* a() {
+    console.log(`First input:${yield}`);// 
+    return 'DONE';
+    }
+    let a1=a();
+    a1.next('hello');
+    a1.next();
+
+    function wrapper(generatorFunction) {
+    return function (...args) {
+        let generatorObject = generatorFunction(...args);
+        generatorObject.next();
+        return generatorObject;
+    };
+    }
+
+    const wrapped = wrapper(function* () {
+    console.log(`First input: ${yield}`);
+    return 'DONE';
+    });
+
+    wrapped().next('hello!')
+
+   
+
     </script>
     
 </body>
