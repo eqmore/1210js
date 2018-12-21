@@ -44,14 +44,40 @@ function Tree(left, label, right) {
   var clock = function* () {
     while (true) {
       console.log('Tick!');
-      yield;
+      yield 'tick';
       console.log('Tock!');
-      yield;
+      yield 'tock';
     }
   };
 
-  let c=clock();
+ /*  let c=clock();
   c.next();
   c.next();
   c.next();
-  c.next();
+  c.next(); */
+
+  var fs = require('fs');
+var thunkify = require('thunkify');
+var readFileThunk = thunkify(fs.readFile);
+
+var gen = function* (){
+  var r1 = yield readFileThunk('../ajax.md');
+  //console.log(r1.toString());
+  var r2 = yield readFileThunk('../linux.md');
+  //console.log(r2.toString());
+};
+
+  var g = gen();
+
+var r1 = g.next();
+console.log(r1.value);
+r1.value(function (err, data) {
+  if (err) throw err;
+  var r2 = g.next(data);
+  r2.value(function (err, data) {
+    if (err) throw err;
+    g.next(data);
+  });
+});
+
+// 仔细查看上面的代码，可以发现 Generator 函数的执行过程，其实是将同一个回调函数，反复传入next方法的value属性。这使得我们可以用递归来自动完成这个过程。
